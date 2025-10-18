@@ -14,15 +14,13 @@ using namespace std;
 // };
 
 class CPU {
-private:
-	int dmemory[4096]; //data memory byte addressable in little endian fashion;
-	unsigned long PC; //pc 
+	private:
+		int dmemory[4096]; //data memory byte addressable in little endian fashion;
+		unsigned long PC; //pc 
 
-public:
-	CPU();
-	unsigned long readPC();
-	void incPC();
-	
+	public:
+		CPU();
+		unsigned long readPC();
+		void incPC();
+		
 };
-
-// add other functions and objects here
