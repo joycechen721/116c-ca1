@@ -74,6 +74,7 @@ int main(int argc, char* argv[])
 		cout << "Fetched instruction at PC " << pc << ": 0x" << hex << instruction << " (binary: " << instrBits << ")" << dec << "\n";
 
 		// decode
+		myCPU.decode(instrBits);
 
 		// increment the PC and break once instructions are done executing
 		myCPU.incPC();
