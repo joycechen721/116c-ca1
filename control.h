@@ -10,7 +10,7 @@ class CPU;
 
 class ControlUnit {
     private:
-        bool RegWrite, MemRead, MemWrite, MemToReg, ALUSrc, Branch, Jump;
+        bool RegWrite, MemRead, MemWrite, MemToReg, ALUSrc, Branch, Jump, LUI;
         int ALUOp, Size;
         
     public:
@@ -27,6 +27,7 @@ class ControlUnit {
         bool getALUSrc() const;
         bool getBranch() const;
         bool getJump() const;
+        bool getLUI() const;
         int getALUOp() const;
         int getSize() const;
 

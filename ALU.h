@@ -7,32 +7,33 @@
 class ALU {
     private:
         // ALU operations
-        enum Operation {
+        enum ArithmeticOperation {
             ADD = 0,
             SUB = 1,
             AND = 2,
             OR = 3,
             SLT = 4,  // Set Less Than
-            SLL = 5,  // Shift Left Logical
-            SRA = 6   // Shift Right Arithmetic
+            SRA = 5   // Shift Right Arithmetic
         };
 
         // signals
-        int ALUOp;
-        uint32_t Input1;
-        uint32_t Input2;
-        uint32_t ALUResult;
+        int ArithmeticOp;
+        int32_t Input1;
+        int32_t Input2;
+        int32_t ALUResult;
         ControlUnit* control; // pointer to control unit
 
-        Operation getALUOp(int funct3) const;
+        ArithmeticOperation getArithmeticOp(int funct3) const;
 
     public:
         ALU(int ALUOp = 0, ControlUnit* ctrl = nullptr);
 
-        void initialize(int ALUOp, int funct3, uint32_t input1, uint32_t input2);
+        void initialize(int ALUOp, int funct3, int32_t input1, int32_t input2);
 
-        uint32_t execute();
+        int32_t execute();
         
-        uint32_t getResult() const { return ALUResult; }
+        int32_t getResult() const { return ALUResult; }
+
+        bool getZero() const { return ALUResult == 0; }
 };
 #endif // ALU_H

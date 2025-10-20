@@ -10,6 +10,7 @@
 #include "control.h"
 #include "registerfile.h"
 #include "ALU.h"
+#include "immgen.h"
 using namespace std;
 
 
@@ -30,7 +31,7 @@ class CPU {
 	public:
 		CPU();
 		unsigned long readPC();
-		void incPC();
+		void incPC(int32_t increment);
 		int decodeInstruction(std::bitset<32> instruction);
 };
 

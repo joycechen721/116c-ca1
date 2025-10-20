@@ -15,134 +15,77 @@ CPU::CPU()
 	}
 }
 
-
 unsigned long CPU::readPC()
 {
+	cout << "Current PC: " << PC << endl;
 	return PC;
 }
-void CPU::incPC()
+
+void CPU::incPC(int32_t increment)
 {
-	PC++;
+	cout << "Incrementing PC by " << increment << endl;
+	PC += increment;
 }
 
 // Add other functions here ... 
 
 // decode instruction and send values to datapath components and controller.
-int CPU::decodeInstruction(std::bitset<32> instruction)
+int CPU::decodeInstruction(bitset<32> instruction)
 {
 	// extract opcode (bits 0-6) for controller
-	std::bitset<7> opcode(instruction.to_ulong() & 0x7F);
+	bitset<7> opcode(instruction.to_ulong() & 0x7F);
 	OpCode op = static_cast<OpCode>(opcode.to_ulong());
 	this->control.setControlSignals(op);
-	std::cout << "Opcode: " << opcode << std::endl;
-	this->control.printControlSignals();
+	// std::cout << "Opcode: " << opcode << std::endl;
+	// this->control.printControlSignals();
 
-	// handle different instruction types
-	switch(op) {
-		case R_TYPE: {
-			// initialize regfile
-			regFile.setReadReg1((instruction.to_ulong() >> 15) & 0x1F); // rs1
-			regFile.setReadReg2((instruction.to_ulong() >> 20) & 0x1F); // rs2
-			regFile.setWriteReg((instruction.to_ulong() >> 7) & 0x1F); // rd
+	// initialize reg file
+	regFile.setReadReg1((instruction.to_ulong() >> 15) & 0x1F); // rs1
+	regFile.setReadReg2((instruction.to_ulong() >> 20) & 0x1F); // rs2
+	regFile.setWriteReg((instruction.to_ulong() >> 7) & 0x1F); // rd
 
-			// initialize ALU
-			std::bitset<3> funct3((instruction.to_ulong() >> 12) & 0x7);
-			ALUUnit.initialize(control.getALUOp(), funct3.to_ulong(),
-			                      regFile.getReadData1(),
-			                      regFile.getReadData2());
+	// generate immediate value
+	int32_t imm = ImmGen::generateImmediate(instruction);
+	cout << "Generated immediate: " << imm << std::endl;
 
-			// execute ALU operation and store result
-			ALUUnit.execute();
-			std::cout << "R-type instruction. ALU Result: " << ALUUnit.getResult() << std::endl;
-			break;
+	// initialize ALU
+	int32_t input1 = two_bit_mux(regFile.getReadData1(), static_cast<int32_t>(0), control.getLUI());
+	int32_t input2 = two_bit_mux(regFile.getReadData2(), imm, control.getALUSrc());
+	input2 = two_bit_mux(input2, static_cast<int32_t>(0), control.getLUI());
+	bitset<7> funct3((instruction.to_ulong() >> 12) & 0x7);
+	ALUUnit.initialize(control.getALUOp(), funct3.to_ulong(), input1, input2);
+	ALUUnit.execute();
+	cout << "ALU result: " << ALUUnit.getResult() << std::endl;
+
+	// handle memory operations
+	int32_t readData = 0;
+	int32_t address = ALUUnit.getResult();
+	if (control.getMemRead()) { // load from memory (little-endian), store to output register
+		for (int i = 0; i < control.getSize(); i++) {
+			readData |= (dmemory[address + i] << (i * 8));
 		}
-		case LOAD:
-		case I_TYPE: {
-			// extract immediate (bits 20-31, sign-extended)
-			long imm = (instruction.to_ulong() >> 20) & 0xFFF;
-			if (imm & 0x800) imm |= 0xFFFFF000; // sign extend
-
-			// initialize regfile
-			regFile.setReadReg1((instruction.to_ulong() >> 15) & 0x1F); // rs1
-			regFile.setWriteReg((instruction.to_ulong() >> 7) & 0x1F); // rd
-
-			// initialize ALU
-			std::bitset<3> funct3((instruction.to_ulong() >> 12) & 0x7);
-			ALUUnit.initialize(control.getALUOp(), funct3.to_ulong(),
-			                    regFile.getReadData1(),
-			                    imm);
-
-			std::cout << "I-type instruction. imm: " << imm << std::endl;
-			break;
-		}
-		case S_TYPE: {
-			// extract immediate (bits 7-11, 25-31, sign-extended)
-			long imm = ((instruction.to_ulong() >> 7) & 0x1F) | ((instruction.to_ulong() >> 20) & 0xFE0);
-			if (imm & 0x800) imm |= 0xFFFFF000; // sign extend
-
-			// initialize regfile
-			regFile.setReadReg1((instruction.to_ulong() >> 15) & 0x1F); // rs1
-			regFile.setReadReg2((instruction.to_ulong() >> 20) & 0x1F); // rs2
-
-			// initialize ALU
-			std::bitset<3> funct3((instruction.to_ulong() >> 12) & 0x7);
-			ALUUnit.initialize(control.getALUOp(), funct3.to_ulong(),
-			                    regFile.getReadData1(),
-			                    imm);
-
-			std::cout << "S-type instruction. funct3: " << funct3 << ", imm: " << imm << std::endl;
-			break;
-		}
-		case B_TYPE: {
-			// extract immediate (bits 8-11, 25-30, 7, 31, sign-extended)
-			long imm = ((instruction.to_ulong() >> 7) & 0x1E) | ((instruction.to_ulong() >> 20) & 0x7E0) |
-					   ((instruction.to_ulong() << 4) & 0x800) | ((instruction.to_ulong() >> 19) & 0x1000);
-			if (imm & 0x1000) imm |= 0xFFFFE000; // sign extend
-
-			// initialize regfile
-			regFile.setReadReg1((instruction.to_ulong() >> 15) & 0x1F); // rs1
-			regFile.setReadReg2((instruction.to_ulong() >> 20) & 0x1F); // rs2
-
-			// initialize ALU
-			std::bitset<3> funct3((instruction.to_ulong() >> 12) & 0x7);
-			ALUUnit.initialize(control.getALUOp(), funct3.to_ulong(),
-			                    regFile.getReadData1(),
-			                    regFile.getReadData2());
-
-			std::cout << "B-type instruction. funct3: " << funct3 << ", imm: " << imm << std::endl;
-			break;
-		}
-		case LUI: {
-			// extract immediate (bits 12-31)
-			long imm = instruction.to_ulong() & 0xFFFFF000;
-
-			// initialize regfile
-			regFile.setWriteReg((instruction.to_ulong() >> 7) & 0x1F); // rd
-
-			// initialize ALU
-			ALUUnit.initialize(control.getALUOp(), 0, 0, imm);
-			std::cout << "LUI instruction. imm: " << imm << std::endl;
-			break;
-		}
-		case JUMP: {
-			// extract immediate (bits 21-30, 20, 12-19, 31, sign-extended)
-			long imm = ((instruction.to_ulong() >> 20) & 0x7FE) | ((instruction.to_ulong() >> 9) & 0x800) |
-					   (instruction.to_ulong() & 0xFF000) | ((instruction.to_ulong() >> 11) & 0x100000);
-			if (imm & 0x100000) imm |= 0xFFE00000; // sign extend
-
-			// initialize regfile
-			regFile.setWriteReg((instruction.to_ulong() >> 7) & 0x1F); // rd
-
-			// initialize ALU
-			ALUUnit.initialize(control.getALUOp(), 0, regFile.getReadData1(), imm);
-			std::cout << "JUMP instruction. imm: " << imm << std::endl;
-			break;
-		}
-		default: {
-			std::cout << "Instruction type not handled in decodeInstruction." << std::endl;
-			break;
+	} else if (control.getMemWrite()) {	// store a register value to memory (little-endian)
+		for (int i = 0; i < control.getSize(); i++) {
+			dmemory[address + i] = (regFile.getReadData2() >> (i * 8)) & 0xFF;
 		}
 	}
-	
+
+	// write memory or ALU result back to register file
+	int32_t writeData = 0;
+	if (control.getRegWrite()) {
+		writeData = two_bit_mux(address, readData, control.getMemToReg());
+		writeData = two_bit_mux(writeData, static_cast<int32_t>(PC + 1), control.getJump());
+		writeData = two_bit_mux(writeData, imm, control.getLUI());
+		regFile.setWriteData(writeData);
+	}
+
+	// print destination register value
+	cout << "Wrote to register x" << ((instruction.to_ulong() >> 7) & 0x1F) << ": " << writeData << std::endl;
+
+	// update PC
+	int32_t increment = two_bit_mux(static_cast<int32_t>(1), imm, control.getBranch() && !ALUUnit.getZero());
+	increment = two_bit_mux(increment, static_cast<int32_t>(address - PC), control.getJump());
+	incPC(increment);
+
 	return 0;
 }

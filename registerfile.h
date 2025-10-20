@@ -6,7 +6,7 @@
 
 class RegisterFile {
     private:
-        uint32_t registers[32];
+        int32_t registers[32];
         int ReadReg1;
         int ReadReg2;
         int WriteReg;
@@ -16,10 +16,10 @@ class RegisterFile {
         RegisterFile(ControlUnit* ctrl = nullptr);
         
         // read register value
-        uint32_t read(int regNum) const;
+        int32_t read(int regNum) const;
         
         // write to register (register 0 is hardwired to 0)
-        void write(int regNum, uint32_t value);
+        void write(int regNum, int32_t value);
         
         // set read registers
         void setReadReg1(int regNum);
@@ -29,11 +29,11 @@ class RegisterFile {
         void setWriteReg(int regNum);
 
         // set write data
-        void setWriteData(uint32_t data);
+        void setWriteData(int32_t data);
         
         // get read register values
-        uint32_t getReadData1() const;
-        uint32_t getReadData2() const;
+        int32_t getReadData1() const;
+        int32_t getReadData2() const;
         
         // reset all registers to 0
         void reset();

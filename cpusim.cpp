@@ -68,7 +68,7 @@ int main(int argc, char* argv[])
 		if (pc >= maxPC) break;
 
 		// convert 4 bytes into a 32-bit instruction (little-endian)
-		uint32_t instruction = instMem[pc * 4] | 
+		int32_t instruction = instMem[pc * 4] | 
 							   (instMem[pc * 4 + 1] << 8) | 
 							   (instMem[pc * 4 + 2] << 16) | 
 							   (instMem[pc * 4 + 3] << 24);
@@ -79,7 +79,7 @@ int main(int argc, char* argv[])
 		myCPU.decodeInstruction(curr_instruction.instr);
 
 		// increment the PC and break once instructions are done executing
-		myCPU.incPC();
+		// myCPU.incPC(1);
 		if (myCPU.readPC() > maxPC)
 			break;
 	}

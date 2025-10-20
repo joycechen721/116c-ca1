@@ -11,7 +11,7 @@ RegisterFile::RegisterFile(ControlUnit* ctrl) : control(ctrl) {
 }
 
 // read from register
-uint32_t RegisterFile::read(int reg_num) const {
+int32_t RegisterFile::read(int reg_num) const {
     if (reg_num >= 32) {
         return 0;
     }
@@ -23,7 +23,7 @@ uint32_t RegisterFile::read(int reg_num) const {
 }
 
 // write to register
-void RegisterFile::write(int reg_num, uint32_t value) {
+void RegisterFile::write(int reg_num, int32_t value) {
     if (reg_num >= 32 || reg_num == 0) {
         // cannot write to x0 or invalid registers
         return;
@@ -46,18 +46,18 @@ void RegisterFile::setWriteReg(int regNum) {
 }
 
 // set write data
-void RegisterFile::setWriteData(uint32_t data) {
+void RegisterFile::setWriteData(int32_t data) {
     if (WriteReg >= 0 && WriteReg < 32) {
         registers[WriteReg] = data;
     }
 }
 
 // get read register values
-uint32_t RegisterFile::getReadData1() const {
+int32_t RegisterFile::getReadData1() const {
     return registers[ReadReg1];
 }
 
-uint32_t RegisterFile::getReadData2() const {
+int32_t RegisterFile::getReadData2() const {
     return registers[ReadReg2];
 }
 
