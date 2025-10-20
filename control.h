@@ -1,26 +1,24 @@
+#ifndef CONTROL_H
+#define CONTROL_H
+
 #include <iostream>
 #include <bitset>
+#include "isa.h"
+using namespace std;
+
+class CPU;
 
 class ControlUnit {
     private:
-        // control signals
-        bool RegWrite;
-        bool MemRead;
-        bool MemWrite;
-        bool MemToReg;
-        bool ALUSrc;
-        bool Branch;
-        bool Jump;
-        int ALUOp;
+        bool RegWrite, MemRead, MemWrite, MemToReg, ALUSrc, Branch, Jump;
+        int ALUOp, Size;
         
     public:
-        ControlUnit() : RegWrite(false), MemRead(false), MemWrite(false),
-                        MemToReg(false), ALUSrc(false), Branch(false),
-                        Jump(false), ALUOp(0) {}
+        ControlUnit();
         
         // decode instruction opcode and set control signals
-        void decode(std::bitset<7> opcode);
-        
+        void setControlSignals(OpCode opcode, int funct3 = 0);
+
         // getters for control signals
         bool getRegWrite() const;
         bool getMemRead() const;
@@ -30,7 +28,10 @@ class ControlUnit {
         bool getBranch() const;
         bool getJump() const;
         int getALUOp() const;
+        int getSize() const;
 
         // print current control signals
         void printControlSignals() const;
 };
+
+#endif // CONTROL_H

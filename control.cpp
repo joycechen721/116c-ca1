@@ -2,59 +2,77 @@
 #include <bitset>
 #include "control.h"
 
+// constructor
+ControlUnit::ControlUnit() : RegWrite(false), MemRead(false), MemWrite(false),
+                              MemToReg(false), ALUSrc(false), Branch(false),
+                              Jump(false), ALUOp(0), Size(0) {}
+
 // decode instruction opcode and set control signals
-void ControlUnit::decode(std::bitset<7> opcode) {
+void ControlUnit::setControlSignals(OpCode opcode, int funct3) {
     // reset all signals
+    ALUOp = ALU_ADD;
+    Size = 0;
     RegWrite = MemRead = MemWrite = MemToReg = ALUSrc = Branch = Jump = false;
-    ALUOp = 0;
-    
-    unsigned int op = opcode.to_ulong();
-    
-    switch(op) {
-        case 0x33: // R-type (ADD, SUB, AND, OR, etc.)
+
+    switch(opcode) {
+        case R_TYPE: { // R-type (SRA, SUB, AND)
+            ALUOp = ALU_R_TYPE;
             RegWrite = true;
-            ALUOp = 2;
             break;
-            
-        case 0x13: // I-type arithmetic (ADDI, SLTI, etc.)
-            RegWrite = true;
-            ALUSrc = true;
-            ALUOp = 2;
+        }
+
+        case LUI: { // LUI
+            ALUOp = ALU_LUI;
+            RegWrite = ALUSrc = true;
             break;
-            
-        case 0x03: // Load (LW, LH, LB, etc.)
-            RegWrite = true;
-            MemRead = true;
-            MemToReg = true;
-            ALUSrc = true;
-            ALUOp = 0;
+        }
+
+        case I_TYPE: { // I-type (ADDI, ORI, SLTIU)
+            ALUOp = ALU_I_TYPE;
+            RegWrite = ALUSrc = true;
             break;
-            
-        case 0x23: // Store (SW, SH, SB, etc.)
-            MemWrite = true;
-            ALUSrc = true;
-            ALUOp = 0;
+        }
+
+        case LOAD: { // Load (LBU, LW)
+            ALUOp = ALU_ADD;
+            RegWrite = ALUSrc = MemRead = MemToReg = true;
+            if (funct3 == 0x4) { // LBU
+                Size = 1;
+            }
+            else if (funct3 == 0x2) { // LW
+                Size = 4;
+            }
             break;
-            
-        case 0x63: // Branch (BEQ, BNE, BLT, BGE, etc.)
+        }
+
+        case S_TYPE: { // Store (SH, SW)
+            ALUOp = ALU_ADD;
+            ALUSrc = MemWrite = true;
+            if (funct3 == 0x1) { // SH
+                Size = 2;
+            }
+            else if (funct3 == 0x2) { // SW
+                Size = 4;
+            }
+            break;
+        }
+
+        case B_TYPE: { // Branch (BNE)
+            ALUOp = ALU_SUB;
             Branch = true;
-            ALUOp = 1;
             break;
-            
-        case 0x6F: // JAL
-            RegWrite = true;
-            Jump = true;
+        }
+
+        case JUMP: { // Jump (JALR)
+            ALUOp = ALU_ADD;
+            RegWrite = ALUSrc = Jump = true;
             break;
-            
-        case 0x67: // JALR
-            RegWrite = true;
-            Jump = true;
-            ALUSrc = true;
+        }
+
+        default: {
+            std::cerr << "Unknown opcode: 0x" << std::hex << opcode << std::endl;
             break;
-            
-        default:
-            std::cerr << "Unknown opcode: 0x" << std::hex << op << std::endl;
-            break;
+        }
     }
 }
 
@@ -67,6 +85,7 @@ bool ControlUnit::getALUSrc() const { return ALUSrc; }
 bool ControlUnit::getBranch() const { return Branch; }
 bool ControlUnit::getJump() const { return Jump; }
 int ControlUnit::getALUOp() const { return ALUOp; }
+int ControlUnit::getSize() const { return Size; }
 
 // print current control signals
 void ControlUnit::printControlSignals() const {
@@ -79,4 +98,5 @@ void ControlUnit::printControlSignals() const {
     std::cout << "  Branch:   " << Branch << "\n";
     std::cout << "  Jump:     " << Jump << "\n";
     std::cout << "  ALUOp:    " << ALUOp << "\n";
+    std::cout << "  Size:     " << Size << "\n";
 }

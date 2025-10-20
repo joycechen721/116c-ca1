@@ -2,11 +2,12 @@
 #include <array>
 #include "registerfile.h"
 
-RegisterFile::RegisterFile() {
+RegisterFile::RegisterFile(ControlUnit* ctrl) : control(ctrl) {
     // initialize all registers to 0
     for (int i = 0; i < 32; i++) {
         registers[i] = 0;
     }
+    control = ctrl;
 }
 
 // read from register
@@ -28,6 +29,36 @@ void RegisterFile::write(int reg_num, uint32_t value) {
         return;
     }
     registers[reg_num] = value;
+}
+
+// set read registers
+void RegisterFile::setReadReg1(int regNum) {
+    ReadReg1 = regNum;
+}
+
+void RegisterFile::setReadReg2(int regNum) {
+    ReadReg2 = regNum;
+}
+
+// set write register
+void RegisterFile::setWriteReg(int regNum) {
+    WriteReg = regNum;
+}
+
+// set write data
+void RegisterFile::setWriteData(uint32_t data) {
+    if (WriteReg >= 0 && WriteReg < 32) {
+        registers[WriteReg] = data;
+    }
+}
+
+// get read register values
+uint32_t RegisterFile::getReadData1() const {
+    return registers[ReadReg1];
+}
+
+uint32_t RegisterFile::getReadData2() const {
+    return registers[ReadReg2];
 }
 
 // reset all registers

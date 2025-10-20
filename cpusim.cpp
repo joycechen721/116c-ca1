@@ -56,7 +56,9 @@ int main(int argc, char* argv[])
 	*/
 
 	CPU myCPU;  // call the approriate constructor here to initialize the processor...  
-	// make sure to create a variable for PC and resets it to zero (e.g., unsigned int PC = 0); 
+	// make sure to create a variable for PC and resets it to zero (e.g., unsigned int PC = 0);
+
+	Instruction curr_instruction(bitset<32>(0));
 	
 	bool done = true;
 	while (done == true) // processor's main loop. Each iteration is equal to one clock cycle.  
@@ -70,11 +72,11 @@ int main(int argc, char* argv[])
 							   (instMem[pc * 4 + 1] << 8) | 
 							   (instMem[pc * 4 + 2] << 16) | 
 							   (instMem[pc * 4 + 3] << 24);
-		bitset<32> instrBits(instruction);
-		cout << "Fetched instruction at PC " << pc << ": 0x" << hex << instruction << " (binary: " << instrBits << ")" << dec << "\n";
+		curr_instruction = Instruction(bitset<32>(instruction));
+		cout << "Fetched instruction at PC " << pc << ": 0x" << hex << instruction << " (binary: " << curr_instruction.instr << ")" << dec << "\n";
 
 		// decode
-		myCPU.decode(instrBits);
+		myCPU.decodeInstruction(curr_instruction.instr);
 
 		// increment the PC and break once instructions are done executing
 		myCPU.incPC();
