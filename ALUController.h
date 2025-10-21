@@ -4,7 +4,7 @@
 #include <bitset>
 #include "control.h"
 
-class ALU {
+class ALUController {
     private:
         // ALU operations
         enum ArithmeticOperation {
@@ -17,7 +17,6 @@ class ALU {
         };
 
         // signals
-        int ArithmeticOp;
         int32_t Input1;
         int32_t Input2;
         int32_t ALUResult;
@@ -26,11 +25,11 @@ class ALU {
         ArithmeticOperation getArithmeticOp(int funct3) const;
 
     public:
-        ALU(int ALUOp = 0, ControlUnit* ctrl = nullptr);
+        ALUController(int ALUOp = 0, ControlUnit* ctrl = nullptr);
 
         void initialize(int ALUOp, int funct3, int32_t input1, int32_t input2);
 
-        int32_t execute();
+        void execute(int funct3, int32_t Input1, int32_t Input2);
         
         int32_t getResult() const { return ALUResult; }
 

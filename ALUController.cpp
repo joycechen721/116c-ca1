@@ -1,14 +1,8 @@
-#include "ALU.h"
+#include "ALUController.h"
 
-ALU::ALU(int ALUOp, ControlUnit* ctrl) : Input1(0), Input2(0), ALUResult(0), ArithmeticOp(ALUOp), control(ctrl) {}
+ALUController::ALUController(int ALUOp, ControlUnit* ctrl) : Input1(0), Input2(0), ALUResult(0), control(ctrl) {}
 
-void ALU::initialize(int ALUOp, int funct3, int32_t input1, int32_t input2) {
-    this->ArithmeticOp = getArithmeticOp(funct3);
-    this->Input1 = input1;
-    this->Input2 = input2;
-}
-
-ALU::ArithmeticOperation ALU::getArithmeticOp(int funct3) const {
+ALUController::ArithmeticOperation ALUController::getArithmeticOp(int funct3) const {
     switch(control->getALUOp()) {
         case ALU_ADD: // Load/Store/Jump (LBU, LW, SH, SW, JALR)
             return ADD;
@@ -35,32 +29,32 @@ ALU::ArithmeticOperation ALU::getArithmeticOp(int funct3) const {
     }
 }
 
-int32_t ALU::execute() {
+void ALUController::execute(int funct3, int32_t Input1, int32_t Input2) {
+    int ArithmeticOp = getArithmeticOp(funct3);
     switch(ArithmeticOp) {
         case ADD:
             // cout << "Performing ADD operation: " << Input1 << " + " << Input2 << endl;
-            ALUResult = Input1 + Input2;
+            this->ALUResult = Input1 + Input2;
             break;
         case SUB:
             // cout << "Performing SUB operation: " << Input1 << " - " << Input2 << endl;  
-            ALUResult = Input1 - Input2;
+            this->ALUResult = Input1 - Input2;
             break;
         case AND:
             // cout << "Performing AND operation: " << Input1 << " & " << Input2 << endl;
-            ALUResult = Input1 & Input2;
+            this->ALUResult = Input1 & Input2;
             break;
         case OR:
-            // cout << "Performing OR operation: " << Input1 << " | " << Input2 << endl;   
-            ALUResult = Input1 | Input2;
+            // cout << "Performing OR operation: " << Input1 << " | " << Input2 << endl;
+            this->ALUResult = Input1 | Input2;
             break;
         case SLT:
             // cout << "Performing SLT operation: " << Input1 << " < " << Input2 << endl;
-            ALUResult = (static_cast<int32_t>(Input1) < static_cast<int32_t>(Input2)) ? 1 : 0;
+            this->ALUResult = (static_cast<int32_t>(Input1) < static_cast<int32_t>(Input2)) ? 1 : 0;
             break;
         case SRA:
             // cout << "Performing SRA operation: " << Input1 << " >> " << (Input2 & 0x1F) << endl;
-            ALUResult = static_cast<int32_t>(Input1) >> (Input2 & 0x1F);
+            this->ALUResult = static_cast<int32_t>(Input1) >> (Input2 & 0x1F);
             break;
     }
-    return ALUResult;
 }

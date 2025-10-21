@@ -9,7 +9,7 @@
 #include "isa.h"
 #include "control.h"
 #include "registerfile.h"
-#include "ALU.h"
+#include "ALUController.h"
 #include "immgen.h"
 #include "memory.h"
 using namespace std;
@@ -28,7 +28,7 @@ class CPU {
 		unsigned long PC; //pc 
 		ControlUnit control; // controller
 		RegisterFile regFile; // register file
-		ALU ALUUnit; // ALU
+		ALUController ALUUnit; // ALU
 
 	public:
 		CPU();
