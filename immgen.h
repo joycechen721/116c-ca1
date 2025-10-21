@@ -3,16 +3,19 @@
 
 #include <bitset>
 #include "isa.h"
+#include <iostream>
 
 class ImmGen {
 public:
     // Generate immediate value based on instruction type
-    static u_int32_t generateImmediate(std::bitset<32> instruction) {
-        u_int32_t imm = 0;
+    static int32_t generateImmediate(std::bitset<32> instruction) {
+        int32_t imm = 0;
         std::bitset<7> opcode(instruction.to_ulong() & 0x7F);
         OpCode op = static_cast<OpCode>(opcode.to_ulong());
 
         switch(op) {
+            case J_TYPE: // JALR is an I-type instruction
+            case I_TYPE_LOAD:
             case I_TYPE:
                 // extract immediate (bits 20-31, sign-extended)
                 imm = (instruction.to_ulong() >> 20) & 0xFFF;
@@ -35,13 +38,6 @@ public:
             case U_TYPE:
                 // extract immediate (bits 12-31)
                 imm = instruction.to_ulong() & 0xFFFFF000;
-                break;
-
-            case J_TYPE: // J-TYPE (JUMP)
-                // extract immediate (bits 21-30, 20, 12-19, 31, sign-extended)
-                imm = ((instruction.to_ulong() >> 20) & 0x7FE) | ((instruction.to_ulong() >> 9) & 0x800) |
-                      (instruction.to_ulong() & 0xFF000) | ((instruction.to_ulong() >> 11) & 0x100000);
-                if (imm & 0x100000) imm |= 0xFFE00000; // sign extend
                 break;
                 
             default:

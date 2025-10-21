@@ -28,14 +28,14 @@ int main(int argc, char* argv[])
 
 	// check for file argument
 	if (argc < 2) {
-		cout << "No file name entered. Exiting...";
+		// cout << "No file name entered. Exiting...";
 		return -1;
 	}
 
 	// open the file
 	ifstream infile(argv[1]);
 	if (!(infile.is_open() && infile.good())) {
-		cout<<"error opening file\n";
+		// cout<<"error opening file\n";
 		return 0; 
 	}
 
@@ -73,7 +73,7 @@ int main(int argc, char* argv[])
 							   (instMem[pc * 4 + 2] << 16) | 
 							   (instMem[pc * 4 + 3] << 24);
 		curr_instruction = Instruction(bitset<32>(instruction));
-		cout << "Fetched instruction at PC " << pc << ": 0x" << hex << instruction << " (binary: " << curr_instruction.instr << ")" << dec << "\n";
+		// cout << "\nFetched instruction at PC " << pc << ": 0x" << hex << instruction << " (binary: " << curr_instruction.instr << ")" << dec << "\n";
 
 		// decode
 		myCPU.decodeInstruction(curr_instruction.instr);
@@ -84,10 +84,10 @@ int main(int argc, char* argv[])
 			break;
 	}
 
-	// int a0 =0;
-	// int a1 =0;  
+	int a0 = myCPU.getRegisterOutputValue(10); // x10 is a0
+	int a1 = myCPU.getRegisterOutputValue(11); // x11 is a1
 	// print the results (you should replace a0 and a1 with your own variables that point to a0 and a1)
-	// cout << "(" << a0 << "," << a1 << ")" << endl;
+	cout << "(" << a0 << "," << a1 << ")" << endl;
 	
 	return 0;
 }

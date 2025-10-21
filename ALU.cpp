@@ -18,8 +18,8 @@ ALU::ArithmeticOperation ALU::getArithmeticOp(int funct3) const {
 
         case ALU_R_TYPE: // R-type (SRA, SUB, AND)
             switch(funct3) {
-                case 0: return SRA;
-                case 5: return SUB;
+                case 0: return SUB;
+                case 5: return SRA;
                 case 7: return AND;
             }
 
@@ -38,27 +38,27 @@ ALU::ArithmeticOperation ALU::getArithmeticOp(int funct3) const {
 int32_t ALU::execute() {
     switch(ArithmeticOp) {
         case ADD:
-            cout << "Performing ADD operation: " << Input1 << " + " << Input2 << endl;
+            // cout << "Performing ADD operation: " << Input1 << " + " << Input2 << endl;
             ALUResult = Input1 + Input2;
             break;
         case SUB:
-            cout << "Performing SUB operation: " << Input1 << " - " << Input2 << endl;  
+            // cout << "Performing SUB operation: " << Input1 << " - " << Input2 << endl;  
             ALUResult = Input1 - Input2;
             break;
         case AND:
-            cout << "Performing AND operation: " << Input1 << " & " << Input2 << endl;
+            // cout << "Performing AND operation: " << Input1 << " & " << Input2 << endl;
             ALUResult = Input1 & Input2;
             break;
         case OR:
-            cout << "Performing OR operation: " << Input1 << " | " << Input2 << endl;   
+            // cout << "Performing OR operation: " << Input1 << " | " << Input2 << endl;   
             ALUResult = Input1 | Input2;
             break;
         case SLT:
-            cout << "Performing SLT operation: " << Input1 << " < " << Input2 << endl;
+            // cout << "Performing SLT operation: " << Input1 << " < " << Input2 << endl;
             ALUResult = (static_cast<int32_t>(Input1) < static_cast<int32_t>(Input2)) ? 1 : 0;
             break;
         case SRA:
-            cout << "Performing SRA operation: " << Input1 << " >> " << (Input2 & 0x1F) << endl;
+            // cout << "Performing SRA operation: " << Input1 << " >> " << (Input2 & 0x1F) << endl;
             ALUResult = static_cast<int32_t>(Input1) >> (Input2 & 0x1F);
             break;
     }

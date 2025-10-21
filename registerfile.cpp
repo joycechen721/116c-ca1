@@ -47,17 +47,23 @@ void RegisterFile::setWriteReg(int regNum) {
 
 // set write data
 void RegisterFile::setWriteData(int32_t data) {
-    if (WriteReg >= 0 && WriteReg < 32) {
+    if (WriteReg > 0 && WriteReg < 32) {
         registers[WriteReg] = data;
     }
 }
 
 // get read register values
 int32_t RegisterFile::getReadData1() const {
+    if (ReadReg1 == 0) {
+        return 0;
+    }
     return registers[ReadReg1];
 }
 
 int32_t RegisterFile::getReadData2() const {
+    if (ReadReg2 == 0) {
+        return 0;
+    }
     return registers[ReadReg2];
 }
 

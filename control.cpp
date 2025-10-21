@@ -8,7 +8,7 @@ ControlUnit::ControlUnit() : RegWrite(false), MemRead(false), MemWrite(false),
                               Jump(false), LUI(false), ALUOp(0), Size(0) {}
 
 // decode instruction opcode and set control signals
-void ControlUnit::setControlSignals(OpCode opcode, int funct3) {
+void ControlUnit::setControlSignals(OpCode opcode) {
     // reset all signals
     ALUOp = ALU_ADD;
     Size = 0;
@@ -36,24 +36,12 @@ void ControlUnit::setControlSignals(OpCode opcode, int funct3) {
         case I_TYPE_LOAD: { // Load (LBU, LW)
             ALUOp = ALU_ADD;
             RegWrite = ALUSrc = MemRead = MemToReg = true;
-            if (funct3 == 0x4) { // LBU
-                Size = 1;
-            }
-            else if (funct3 == 0x2) { // LW
-                Size = 4;
-            }
             break;
         }
 
         case S_TYPE: { // Store (SH, SW)
             ALUOp = ALU_ADD;
             ALUSrc = MemWrite = true;
-            if (funct3 == 0x1) { // SH
-                Size = 2;
-            }
-            else if (funct3 == 0x2) { // SW
-                Size = 4;
-            }
             break;
         }
 

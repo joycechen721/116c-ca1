@@ -17,7 +17,7 @@ class ControlUnit {
         ControlUnit();
         
         // decode instruction opcode and set control signals
-        void setControlSignals(OpCode opcode, int funct3 = 0);
+        void setControlSignals(OpCode opcode);
 
         // getters for control signals
         bool getRegWrite() const;

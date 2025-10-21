@@ -11,6 +11,7 @@
 #include "registerfile.h"
 #include "ALU.h"
 #include "immgen.h"
+#include "memory.h"
 using namespace std;
 
 
@@ -22,7 +23,8 @@ public:
 	
 class CPU {
 	private:
-		int dmemory[4096]; //data memory byte addressable in little endian fashion;
+		// int dmemory[4096]; //data memory byte addressable in little endian fashion;
+		Memory memory; // data memory
 		unsigned long PC; //pc 
 		ControlUnit control; // controller
 		RegisterFile regFile; // register file
@@ -32,7 +34,9 @@ class CPU {
 		CPU();
 		unsigned long readPC();
 		void incPC(int32_t increment);
+		void setPC(unsigned long newPC);
 		int decodeInstruction(std::bitset<32> instruction);
+		int getRegisterOutputValue(int regNum) const;
 };
 
 #endif // CPU_H
